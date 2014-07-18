@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: InPay Woocommerce
-Plugin URI: http://www.paycoin.pl
+Plugin URI: http://www.inpay.pl
 Description: This plugin adds the InPay payment gateway to your Woocommerce plugin.  Woocommerce is required.
 Version: 1.0
 Author: Robertas Dereskevicius
@@ -106,17 +106,17 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 						'title' => __( 'Customer Message', 'woothemes' ),
 						'type' => 'textarea',
 						'description' => __( 'Message to explain how the customer will be paying for the purchase.', 'woothemes' ),
-						'default' => 'You will be redirected to paycoin.pl to complete your purchase.'
+						'default' => 'You will be redirected to InPay.pl to complete your purchase.'
 					),
 					'apiKey' => array(
 						'title' => __('API Key', 'woothemes'),
 						'type' => 'text',
-						'description' => __('Enter the API key you created at paycoin.pl'),
+						'description' => __('Enter the API key you created at InPay.pl'),
 					),
 					'secretApiKey' => array(
 						'title' => __('API Key secret', 'woothemes'),
 						'type' => 'text',
-						'description' => __('Enter the API key you created at paycoin.pl'),
+						'description' => __('Enter the API key you created at InPay.pl'),
 					),
 					'minConfirmations' => array(
 						'title' => __('minimum Confirmations', 'woothemes'),
@@ -136,7 +136,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			public function admin_options() {
 				?>
 				<h3><?php _e('Bitcoin Payment', 'woothemes'); ?></h3>
-				<p><?php _e('Allows bitcoin payments via paycoin.pl.', 'woothemes'); ?></p>
+				<p><?php _e('Allows bitcoin payments via InPay.pl.', 'woothemes'); ?></p>
 				<table class="form-table">
 				<?php
 					// Generate the HTML For the settings form.
@@ -166,7 +166,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				$order = new WC_Order( $order_id );
 
 				// Mark as on-hold (we're awaiting the coins)
-				$order->update_status('on-hold', __('Awaiting payment notification from paycoin.pl', 'woothemes'));
+				$order->update_status('on-hold', __('Awaiting payment notification from InPay.pl', 'woothemes'));
 				
 				// invoice options
 				$vcheck = explode('.',WC_VERSION);

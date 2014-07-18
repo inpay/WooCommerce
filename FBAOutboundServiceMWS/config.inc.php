@@ -6,7 +6,7 @@
     * All MWS requests must contain a User-Agent header. The application
     * name and version defined below are used in creating this value.
     ***********************************************************************/
-    define('APPLICATION_NAME', 'WoocommerceInpay');
+    define('APPLICATION_NAME', 'WooCommerceInPay');
     define('APPLICATION_VERSION', '2010-10-01'); // actually the API version
 
 
