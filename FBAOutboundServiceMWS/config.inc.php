@@ -32,4 +32,3 @@
     }
 	
 	spl_autoload_register('fbaAutoload');
- ?>

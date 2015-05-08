@@ -1,95 +1,66 @@
 <?php
 
 /**
- * The MIT License (MIT)
- * 
- * Copyright (c) 2014 Robertas Dereskevicius <info@softdb.eu>
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * Copyright (c) 2015 InPay S.A.
+ *
  */
 
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) 
 {
 	
-	function inpay_callback()
-	{
-		if(isset($_GET['inpay_callback']))
-		{
-/*
-$fh = fopen("debug.txt","a");
-fwrite($fh,print_r($_SERVER,true));
-fwrite($fh,print_r($_GET,true));
-fwrite($fh,print_r($_POST,true));
-fclose($fh);
-*/
+	function inpay_callback() {
+		if(isset($_GET['inpay_callback'])) {
 			global $woocommerce;
 			
 			require(plugin_dir_path(__FILE__).'bp_lib.php');
 			
 			$gateways = $woocommerce->payment_gateways->payment_gateways();
-			if (!isset($gateways['inpay']))
-			{
-				error_log('inpay plugin not enabled in woocommerce');
+			if (!isset($gateways['inpay'])) {
+				error_log('InPay plugin not enabled in WooCommerce');
 				return;
 			}
 			$bp = $gateways['inpay'];
 			$valid = bpVerifyNotification( $bp->settings['secretApiKey'] );
 
-			if (!$valid)
-				error_log($response);
-			else
-			{
+			if (!$valid) {
+				error_log("Not valid notification");
+            } else {
 				$orderId = $_POST["orderCode"];
 				$order = new WC_Order( $orderId );
 
-				switch($_POST['status'])
-				{
+				switch($_POST['status']) {
 					case 'new':
+                        $order->add_order_note( __('Awaiting payment.', 'woothemes') );
+                        break;
 					case 'received':
+                        $order->add_order_note( __('InPay bitcoin payment processing. Awaiting confirmation and completed status.', 'woothemes') );
 						break;
 					case 'confirmed':
-						$order->add_order_note( __('InPay bitcoin payment confirmed. Awaiting network confirmation and completed status.', 'woothemes') );
-					case 'paid':
-						
-						if ( in_array($order->status, array('on-hold', 'pending', 'failed' ) ) )
-						{
+						if ( in_array($order->status, array('on-hold', 'pending', 'failed' ) ) ) {
 							$order->payment_complete();		
 							processOrderFBA($bp, $order);
 							$order->add_order_note( __('InPay bitcoin payment completed. Payment credited to your merchant account.', 'woothemes') );
 						}
-						
 						break;
 					case 'expired':
-					case 'aborted':
 					case 'invalid':
-						$order->add_order_note( __('Bitcoin payment is invalid for this order! The payment was not confirmed by the network within 1 hour.', 'woothemes') );
+						$order->add_order_note( __('Bitcoin payment is invalid for this order!', 'woothemes') );
 						$order->update_status('failed');
 						break;
+                    case 'refund':
+                        $order->add_order_note( __('Bitcoin payment is refunded for this order!', 'woothemes') );
+                        $order->update_status('failed');
+                        break;
 				}
 			}
 		}
 	}
 	
-	function processOrderFBA($inpay, $order)
-	{
-		if (!$inpay->settings['fbaEnabled'])
+	function processOrderFBA($inpay, $order) {
+        global $bpfbaOptions;
+		if (!$inpay->settings['fbaEnabled']) {
 			return;
+        }
 			
 		$orderInfo = 'order '.$order->id.':'; // for log
 
@@ -108,13 +79,11 @@ fclose($fh);
 		$orderItems = array();
 		$hasSkus = false; // does this order have any skus?
 		$hasBlanks = false; // does this order have any blank skus?
-		foreach ($items as $i)
-		{
+		foreach ($items as $i) {
 			$product = get_product($i['product_id']);
-			if (strlen($product->get_sku()))
+			if (strlen($product->get_sku())) {
 				$hasSkus = true;
-			else 
-			{
+            } else {
 				$hasBlanks = true;
 				continue;
 			}
@@ -124,21 +93,24 @@ fclose($fh);
 				'sku' => $product->get_sku(),
 				'quantity' => $i['qty']);
 		}				
-		if (!$hasSkus)
+		if (!$hasSkus) {
 			return true; // nothing to do
+        }
 		$prefix = ($order->shipping_address_1) ? 'shipping_' : 'billing_';
 		$address = array(
-			'name' => $order->{$prefix.first_name}.' '.$order->{$prefix.last_name},
-			'line1' => $order->{$prefix.address_1},
-			'line2' => $order->{$prefix.address_2},
+			'name' => $order->{$prefix . 'first_name'}.' '.$order->{$prefix . 'last_name'},
+			'line1' => $order->{$prefix . 'address_1'},
+			'line2' => $order->{$prefix . 'address_2'},
 			'line3' => '',
-			'city' => $order->{$prefix.city},
-			'state' => $order->{$prefix.state},
-			'country' => $order->{$prefix.country},
-			'zip' => $order->{$prefix.postcode},
-			'phone' => $order->billing_phone); // there is no shipping_phone
-		if (strlen($order->{$prefix.company}))
-			$address['name'] = $order->{$prefix.company}.' c/o '.$address['name'];
+			'city' => $order->{$prefix . 'city'},
+			'state' => $order->{$prefix . 'state'},
+			'country' => $order->{$prefix . 'country'},
+			'zip' => $order->{$prefix . 'postcode'},
+			'phone' => $order->billing_phone
+        ); // there is no shipping_phone
+		if (strlen($order->{$prefix . 'company'})) {
+			$address['name'] = $order->{$prefix . 'company'}.' c/o '.$address['name'];
+        }
 				
 		// find fba options by looking for country
 		foreach($bpfbaOptions as $o) {
@@ -180,12 +152,12 @@ fclose($fh);
 			$secretKey, 
 			$config,
 			APPLICATION_NAME,
-			APPLICATION_VERSION);
+			APPLICATION_VERSION
+        );
 		
 		$items = array();
 		$orderItemId=1;
-		foreach($orderItems as $i)
-		{
+		foreach($orderItems as $i) {
 			$value = new FBAOutboundServiceMWS_Model_Currency();
 			$value->setCurrencyCode($i['currency']);
 			$value->setValue($i['value']);
