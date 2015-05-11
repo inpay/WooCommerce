@@ -89,3 +89,4 @@ function bpVerifyNotification ($secretApiKey = false)
     $hash = hash_hmac("sha512", $query, $secretApiKey);
     return $apiHash == $hash;
 }
+?>

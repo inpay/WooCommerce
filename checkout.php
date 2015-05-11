@@ -1,7 +1,13 @@
 <?php
-/*
- * Copyright (c) 2015 InPay S.A.
-*/
+/**
+ * Plugin Name: InPay WooCommerce
+ * Plugin URI: https://www.inpay.pl
+ * Description: This plugin adds the InPay payment gateway to your WooCommerce plugin. WooCommerce is required.
+ * Version: 1.1
+ * Author: InPay S.A.
+ * Author URI: https://inpay.pl
+ * License: Copyright (c) 2015 InPay S.A.
+ */
 
 
 if (!function_exists('nn_active_nw_plugins')) {
@@ -181,3 +187,4 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
     add_filter('woocommerce_payment_gateways', 'add_inpay_gateway');
     add_action('plugins_loaded', 'declareWooInpay', 0);
 }
+?>
