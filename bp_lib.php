@@ -39,7 +39,9 @@ function bpCurl ($url, $post = false) {
 // ('apiKey', 'amount', 'currency', 'orderCode', 'callbackUrl', 
 //		'customerName', 'customerAddress1', 'customerAddress2', 'customerCity', 'customerState', 'customerZip', 'customerEmail', 'customerPhone',
 //		'successUrl', 'failUrl', 'minConfirmations');
-function bpCreateInvoice ($orderId, $price, $post, $options = array()) {
+function bpCreateInvoice ($orderId, $price, $orderId, $options = array()) {
+
+    $post = array();
 
     $options['orderCode'] = $orderId;
     $options['amount'] = $price;
