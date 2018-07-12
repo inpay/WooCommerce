@@ -7,7 +7,7 @@ After you have downloaded the latest plugin zip file unzip this archive and copy
 
 Configuration for Woocommerce versions 2.x and newer
 -------------
-1. Copy your API keys at https://InPay.pl/partner
+1. Copy your API keys at https://inpay.pl/panel/settings/apikeys
 2. In the Admin panel click Plugins, then click Activate under Inpay Woocommerce.
 3. In Admin panel click Woocommerce > Settings > Checkout > InPay.
 a. Verify that the module is enabled.
@@ -18,7 +18,7 @@ c. Click the Save changes button to store your settings.
 Troubleshooting
 ----------------
 The official InPay API documentation should always be your first reference for development, errors and troubleshooting:
-https://inpay.pl/dokumentacja-api/
+https://inpay.pl/apidoc/
 
 
 Version
