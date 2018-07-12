@@ -75,7 +75,7 @@ function bpCreateInvoice ($price, $orderId, $options = array()) {
     }
     $postData = substr($postData, 0, strlen($postData) - 1);
 
-    $response = bpCurl('https://api.inpay.pl/invoice/create', $postData);
+    $response = bpCurl('https://apitest.inpay.pl/invoice/create', $postData);
     if (is_string($response)) {
         return array('messageType' => 'error', 'message' => $response);
     }
